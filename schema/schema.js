@@ -1,4 +1,5 @@
 const graphql = require("graphql");
+const moment = require("moment");
 // const _ = require("lodash");
 const Book = require("../model/book");
 const Author = require("../model/author");
@@ -98,7 +99,7 @@ const MatchType = new GraphQLObjectType({
       resolve(parent, args) {
         // return _.filter(books, { authorId: parent.id });
         return Team.find({
-          id: {
+          _id: {
             $in: [parent.teamId1, parent.teamId2]
           }
         });
@@ -164,6 +165,35 @@ const RootQuery = new GraphQLObjectType({
       type: new GraphQLList(TeamType),
       resolve(parent, args) {
         return Team.find({});
+      }
+    },
+    match: {
+      type: MatchType,
+      args: { id: { type: GraphQLID } },
+      resolve(parent, args) {
+        return Match.findById(args.id);
+      }
+    },
+    matches: {
+      type: new GraphQLList(MatchType),
+      resolve(parent, args) {
+        return Match.find({});
+      }
+    },
+    dayMatches: {
+      type: new GraphQLList(MatchType),
+      args: { date: { type: GraphQLString } },
+      resolve(parent, args) {
+        let date = new Date(args.date);
+        const start = moment(date).startOf("day");
+        const end = moment(start).endOf("day");
+        // Find any match between the start of the given date and the end.
+        return Match.find({
+          date: {
+            $gte: start.toDate(),
+            $lte: end.toDate()
+          }
+        });
       }
     }
   }
@@ -253,6 +283,22 @@ const Mutation = new GraphQLObjectType({
           { new: true }
         );
         return player;
+      }
+    },
+    createMatch: {
+      type: MatchType,
+      args: {
+        date: { type: new GraphQLNonNull(GraphQLString) },
+        teamId1: { type: new GraphQLNonNull(GraphQLID) },
+        teamId2: { type: new GraphQLNonNull(GraphQLID) }
+      },
+      resolve(parent, args) {
+        let match = new Match({
+          date: new Date(args.date).toISOString(),
+          teamId1: args.teamId1,
+          teamId2: args.teamId2
+        });
+        return match.save();
       }
     }
   }
