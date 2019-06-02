@@ -4,7 +4,10 @@
   "description": "",
   "main": "server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "client": "cd ..&& cd client&& npm run serve",
+    "server": "nodemon server.js",
+    "dev": "concurrently --kill-others-on-fail \"npm run server\" \"npm run client\""
   },
   "repository": {
     "type": "git",
@@ -15,5 +18,16 @@
   "bugs": {
     "url": "https://github.com/lluisgarciapons/futbAllIn_back/issues"
   },
-  "homepage": "https://github.com/lluisgarciapons/futbAllIn_back#readme"
+  "homepage": "https://github.com/lluisgarciapons/futbAllIn_back#readme",
+  "dependencies": {
+    "express": "^4.17.1",
+    "express-graphql": "^0.8.0",
+    "graphql": "^14.3.1",
+    "lodash": "^4.17.11",
+    "mongoose": "^5.5.11"
+  },
+  "devDependencies": {
+    "concurrently": "^4.1.0",
+    "nodemon": "^1.19.1"
+  }
 }
