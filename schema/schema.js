@@ -94,6 +94,7 @@ const MatchType = new GraphQLObjectType({
   name: "Match",
   fields: () => ({
     id: { type: GraphQLID },
+    date: { type: GraphQLString },
     teams: {
       type: new GraphQLList(TeamType),
       resolve(parent, args) {
