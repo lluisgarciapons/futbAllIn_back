@@ -6,6 +6,7 @@ const Author = require("../model/author");
 const Player = require("../model/player");
 const Team = require("../model/team");
 const Match = require("../model/match");
+const User = require("../model/user");
 
 const {
   GraphQLObjectType,
@@ -49,18 +50,34 @@ const BookType = new GraphQLObjectType({
   })
 });
 
+const UserType = new GraphQLObjectType({
+  name: "User",
+  fields: () => ({
+    id: { type: GraphQLID },
+    googleId: { type: GraphQLString },
+    token: { type: GraphQLString },
+    name: { type: GraphQLString },
+    email: { type: GraphQLString },
+    photoURL: { type: GraphQLString }
+  })
+});
+
 const PlayerType = new GraphQLObjectType({
   name: "Player",
   fields: () => ({
     id: { type: GraphQLID },
     username: { type: GraphQLString },
-    email: { type: GraphQLString },
-    password: { type: GraphQLString },
     avatar: { type: GraphQLString },
     team: {
       type: TeamType,
       resolve(parent, args) {
         return Team.findById(parent.teamId);
+      }
+    },
+    user: {
+      type: UserType,
+      resolve(parent, args) {
+        return User.findById(parent.userId);
       }
     }
   })
@@ -140,6 +157,19 @@ const RootQuery = new GraphQLObjectType({
       resolve(parent, args) {
         //return authors;
         return Author.find({});
+      }
+    },
+    user: {
+      type: UserType,
+      args: { id: { type: GraphQLID } },
+      resolve(parent, args) {
+        return User.findById(args.id);
+      }
+    },
+    users: {
+      type: GraphQLList(UserType),
+      resolve(parent, args) {
+        return User.find({});
       }
     },
     player: {
@@ -237,10 +267,9 @@ const Mutation = new GraphQLObjectType({
       type: PlayerType,
       args: {
         username: { type: new GraphQLNonNull(GraphQLString) },
-        email: { type: new GraphQLNonNull(GraphQLString) },
-        password: { type: new GraphQLNonNull(GraphQLString) },
         avatar: { type: GraphQLString },
-        teamId: { type: GraphQLID }
+        teamId: { type: GraphQLID },
+        userId: { type: new GraphQLNonNull(GraphQLString) }
       },
       resolve(parent, args) {
         let player = new Player({

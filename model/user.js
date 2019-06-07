@@ -1,20 +1,25 @@
 const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
-const playerSchema = new Schema({
-  username: {
+const userSchema = new Schema({
+  name: {
     type: String,
     required: true
   },
-  avatar: {
-    type: String
-  },
-  teamId: {
-    type: String
-  },
-  userId: {
+  googleId: {
     type: String,
     required: true
+  },
+  token: {
+    type: String
+  },
+  email: {
+    type: String,
+    unique: true,
+    required: true
+  },
+  photoURL: {
+    type: String
   },
   date: {
     type: Date,
@@ -22,4 +27,4 @@ const playerSchema = new Schema({
   }
 });
 
-module.exports = mongoose.model("Player", playerSchema);
+module.exports = mongoose.model("User", userSchema);
