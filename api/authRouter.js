@@ -14,6 +14,7 @@ authRouter.get(
 
 authRouter.get("/logout", (req, res) => {
   req.logout();
+  res.send("logoutSuccess");
 });
 
 authRouter.get(

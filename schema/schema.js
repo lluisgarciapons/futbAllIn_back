@@ -58,7 +58,13 @@ const UserType = new GraphQLObjectType({
     token: { type: GraphQLString },
     name: { type: GraphQLString },
     email: { type: GraphQLString },
-    photoURL: { type: GraphQLString }
+    photoURL: { type: GraphQLString },
+    player: {
+      type: PlayerType,
+      resolve(parent, args) {
+        return Player.findOne({ userId: parent.id });
+      }
+    }
   })
 });
 
@@ -269,15 +275,14 @@ const Mutation = new GraphQLObjectType({
         username: { type: new GraphQLNonNull(GraphQLString) },
         avatar: { type: GraphQLString },
         teamId: { type: GraphQLID },
-        userId: { type: new GraphQLNonNull(GraphQLString) }
+        userId: { type: new GraphQLNonNull(GraphQLID) }
       },
       resolve(parent, args) {
         let player = new Player({
           username: args.username,
-          email: args.email,
-          password: args.password,
           avatar: args.avatar,
-          teamId: args.teamId
+          teamId: args.teamId,
+          userId: args.userId
         });
         return player.save();
       }
