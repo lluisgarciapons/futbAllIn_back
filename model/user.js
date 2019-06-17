@@ -6,6 +6,10 @@ const userSchema = new Schema({
     type: String,
     required: true
   },
+  username: {
+    type: String,
+    required: true
+  },
   googleId: {
     type: String,
     required: true
@@ -19,6 +23,12 @@ const userSchema = new Schema({
     required: true
   },
   photoURL: {
+    type: String
+  },
+  avatar: {
+    type: String
+  },
+  teamId: {
     type: String
   },
   date: {

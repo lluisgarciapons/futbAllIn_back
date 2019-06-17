@@ -8,6 +8,7 @@ const cookieSession = require("cookie-session");
 
 require("./config/passport-setup");
 const authRouter = require("./api/authRouter");
+const checkLoginRouter = require("./api/checkLoginRouter");
 const keys = require("./config/keys");
 
 const app = express();
@@ -40,5 +41,10 @@ app.use(
   })
 );
 app.use("/auth", authRouter);
+app.use(
+  "/checkLogin",
+  passport.authenticate("jwt", { session: false }),
+  checkLoginRouter
+);
 
 app.listen(4000, () => console.log("Now listening for requests on port 4000"));

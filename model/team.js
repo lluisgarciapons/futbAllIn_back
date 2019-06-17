@@ -14,6 +14,9 @@ const teamSchema = new Schema({
   avatar: {
     type: String
   },
+  public: {
+    type: Boolean
+  },
   date: {
     type: Date,
     default: Date.now()

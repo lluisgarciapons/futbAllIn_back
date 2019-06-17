@@ -3,7 +3,7 @@ const moment = require("moment");
 // const _ = require("lodash");
 const Book = require("../model/book");
 const Author = require("../model/author");
-const Player = require("../model/player");
+// const Player = require("../model/player");
 const Team = require("../model/team");
 const Match = require("../model/match");
 const User = require("../model/user");
@@ -14,6 +14,7 @@ const {
   GraphQLSchema,
   GraphQLID,
   GraphQLInt,
+  GraphQLBoolean,
   GraphQLList,
   GraphQLNonNull
 } = graphql;
@@ -57,37 +58,39 @@ const UserType = new GraphQLObjectType({
     googleId: { type: GraphQLString },
     token: { type: GraphQLString },
     name: { type: GraphQLString },
+    username: { type: GraphQLString },
     email: { type: GraphQLString },
     photoURL: { type: GraphQLString },
-    player: {
-      type: PlayerType,
-      resolve(parent, args) {
-        return Player.findOne({ userId: parent.id });
-      }
-    }
-  })
-});
-
-const PlayerType = new GraphQLObjectType({
-  name: "Player",
-  fields: () => ({
-    id: { type: GraphQLID },
-    username: { type: GraphQLString },
     avatar: { type: GraphQLString },
     team: {
       type: TeamType,
       resolve(parent, args) {
         return Team.findById(parent.teamId);
       }
-    },
-    user: {
-      type: UserType,
-      resolve(parent, args) {
-        return User.findById(parent.userId);
-      }
     }
   })
 });
+
+// const PlayerType = new GraphQLObjectType({
+//   name: "Player",
+//   fields: () => ({
+//     id: { type: GraphQLID },
+//     username: { type: GraphQLString },
+//     avatar: { type: GraphQLString },
+//     team: {
+//       type: TeamType,
+//       resolve(parent, args) {
+//         return Team.findById(parent.teamId);
+//       }
+//     },
+//     user: {
+//       type: UserType,
+//       resolve(parent, args) {
+//         return User.findById(parent.userId);
+//       }
+//     }
+//   })
+// });
 
 const TeamType = new GraphQLObjectType({
   name: "Team",
@@ -96,10 +99,11 @@ const TeamType = new GraphQLObjectType({
     name: { type: GraphQLString },
     short_name: { type: GraphQLString },
     avatar: { type: GraphQLString },
+    public: { type: GraphQLBoolean },
     players: {
-      type: new GraphQLList(PlayerType),
+      type: new GraphQLList(UserType),
       resolve(parent, args) {
-        return Player.find({ teamId: parent.id });
+        return User.find({ teamId: parent.id });
       }
     },
     matches: {
@@ -178,19 +182,19 @@ const RootQuery = new GraphQLObjectType({
         return User.find({});
       }
     },
-    player: {
-      type: PlayerType,
-      args: { id: { type: GraphQLID } },
-      resolve(parent, args) {
-        return Player.findById(args.id);
-      }
-    },
-    players: {
-      type: new GraphQLList(PlayerType),
-      resolve(parent, args) {
-        return Player.find({});
-      }
-    },
+    // player: {
+    //   type: PlayerType,
+    //   args: { id: { type: GraphQLID } },
+    //   resolve(parent, args) {
+    //     return Player.findById(args.id);
+    //   }
+    // },
+    // players: {
+    //   type: new GraphQLList(PlayerType),
+    //   resolve(parent, args) {
+    //     return Player.find({});
+    //   }
+    // },
     team: {
       type: TeamType,
       args: { id: { type: GraphQLID } },
@@ -269,24 +273,24 @@ const Mutation = new GraphQLObjectType({
         return book.save();
       }
     },
-    createPlayer: {
-      type: PlayerType,
-      args: {
-        username: { type: new GraphQLNonNull(GraphQLString) },
-        avatar: { type: GraphQLString },
-        teamId: { type: GraphQLID },
-        userId: { type: new GraphQLNonNull(GraphQLID) }
-      },
-      resolve(parent, args) {
-        let player = new Player({
-          username: args.username,
-          avatar: args.avatar,
-          teamId: args.teamId,
-          userId: args.userId
-        });
-        return player.save();
-      }
-    },
+    // createPlayer: {
+    //   type: PlayerType,
+    //   args: {
+    //     username: { type: new GraphQLNonNull(GraphQLString) },
+    //     avatar: { type: GraphQLString },
+    //     teamId: { type: GraphQLID },
+    //     userId: { type: new GraphQLNonNull(GraphQLID) }
+    //   },
+    //   resolve(parent, args) {
+    //     let player = new Player({
+    //       username: args.username,
+    //       avatar: args.avatar,
+    //       teamId: args.teamId,
+    //       userId: args.userId
+    //     });
+    //     return player.save();
+    //   }
+    // },
     createTeam: {
       type: TeamType,
       args: {
@@ -304,20 +308,41 @@ const Mutation = new GraphQLObjectType({
       }
     },
     addTeamToPlayer: {
-      type: PlayerType,
+      type: UserType,
       args: {
-        playerId: { type: new GraphQLNonNull(GraphQLID) },
+        userId: { type: new GraphQLNonNull(GraphQLID) },
         teamId: { type: new GraphQLNonNull(GraphQLID) }
       },
       resolve(parent, args) {
-        let player = Player.findByIdAndUpdate(
-          args.playerId,
+        let player = User.findByIdAndUpdate(
+          args.userId,
           {
             $set: { teamId: args.teamId }
           },
           { new: true }
         );
         return player;
+      }
+    },
+    modifyInfo: {
+      type: UserType,
+      args: {
+        userId: { type: new GraphQLNonNull(GraphQLID) },
+        username: { type: GraphQLString },
+        avatar: { type: GraphQLString }
+      },
+      resolve(parent, args) {
+        let user = User.findByIdAndUpdate(
+          args.userId,
+          {
+            $set: {
+              username: args.username,
+              avatar: args.avatar
+            }
+          },
+          { new: true }
+        );
+        return user;
       }
     },
     createMatch: {
