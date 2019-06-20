@@ -9,11 +9,19 @@ const cookieSession = require("cookie-session");
 require("./config/passport-setup");
 const authRouter = require("./api/authRouter");
 const checkLoginRouter = require("./api/checkLoginRouter");
+const filesRouter = require("./api/filesRouter");
 const keys = require("./config/keys");
 
 const app = express();
 
 app.use(cors());
+
+// app.use("*/uploads", express.static("uploads"));
+app.use(
+  "/uploads",
+  // passport.authenticate("jwt", { session: false }),
+  filesRouter
+);
 
 app.use(
   cookieSession({
