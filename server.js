@@ -39,6 +39,7 @@ mongoose.connection.once("open", () => {
   console.log("Connected to database");
 });
 mongoose.set("useCreateIndex", true);
+mongoose.set("useFindAndModify", false);
 
 app.use(
   "/graphql",
@@ -48,6 +49,17 @@ app.use(
     graphiql: true
   })
 );
+// app.use(
+//   "/graphql",
+//   graphqlHTTP(req => ({
+//     formatError: error => ({
+//       message: error.message,
+//       state: error.originalError && error.originalError.state,
+//       locations: error.locations,
+//       path: error.path
+//     })
+//   }))
+// );
 app.use("/auth", authRouter);
 app.use(
   "/checkLogin",

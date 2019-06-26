@@ -4,17 +4,21 @@ const Schema = mongoose.Schema;
 const teamSchema = new Schema({
   name: {
     type: String,
-    required: true
+    required: true,
+    minlength: 3,
+    maxlength: 20
   },
   short_name: {
     type: String,
     required: true,
+    minlength: 3,
     maxlength: 3
   },
   avatar: {
-    type: String
+    type: String,
+    required: true
   },
-  public: {
+  private: {
     type: Boolean
   },
   date: {

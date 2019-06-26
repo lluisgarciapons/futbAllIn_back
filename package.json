@@ -32,7 +32,8 @@
     "passport": "^0.4.0",
     "passport-google-oauth20": "^2.0.0",
     "passport-jwt": "^4.0.0",
-    "path": "^0.12.7"
+    "path": "^0.12.7",
+    "validator": "^11.0.0"
   },
   "devDependencies": {
     "concurrently": "^4.1.0",

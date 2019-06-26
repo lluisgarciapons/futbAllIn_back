@@ -100,6 +100,7 @@ const TeamType = new GraphQLObjectType({
     short_name: { type: GraphQLString },
     avatar: { type: GraphQLString },
     public: { type: GraphQLBoolean },
+    full: { type: GraphQLBoolean },
     players: {
       type: new GraphQLList(UserType),
       resolve(parent, args) {
@@ -294,17 +295,30 @@ const Mutation = new GraphQLObjectType({
     createTeam: {
       type: TeamType,
       args: {
+        userId: { type: new GraphQLNonNull(GraphQLID) },
         name: { type: new GraphQLNonNull(GraphQLString) },
         short_name: { type: new GraphQLNonNull(GraphQLString) },
-        avatar: { type: GraphQLString }
+        avatar: { type: new GraphQLNonNull(GraphQLString) },
+        private: { type: new GraphQLNonNull(GraphQLBoolean) }
       },
       resolve(parent, args) {
         let team = new Team({
           name: args.name,
           short_name: args.short_name,
-          avatar: args.avatar
+          avatar: args.avatar,
+          public: args.public,
+          full: false
         });
-        return team.save();
+        return team.save().then(team => {
+          let player = User.findByIdAndUpdate(
+            args.userId,
+            {
+              $set: { teamId: team.id }
+            },
+            { new: true }
+          );
+          return team;
+        });
       }
     },
     addTeamToPlayer: {
@@ -321,6 +335,9 @@ const Mutation = new GraphQLObjectType({
           },
           { new: true }
         );
+        Team.findByIdAndUpdate(args.teamId, {
+          $set: { full: true }
+        });
         return player;
       }
     },
