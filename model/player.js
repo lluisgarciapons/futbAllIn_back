@@ -4,7 +4,9 @@ const Schema = mongoose.Schema;
 const playerSchema = new Schema({
   username: {
     type: String,
-    required: true
+    required: true,
+    maxlength: 20,
+    minlength: 3
   },
   avatar: {
     type: String
